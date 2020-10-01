@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Smart Sensor Devices Chrome.serial Beacon Example</title>
+    <meta charset="utf-8" />
+    <meta name="ssd" content="beaconexample" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+      // Redirect to HTTPS if HTTP is requested.
+      if (window.location.protocol === "http:") {
+        window.location.href = "https:" + window.location.href.substring(5);
+      }
+    </script>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <header class="header">
+      <h1>Chrome.serial Beacon Example</h1>
+    </header>
+    <main class="main">
+      <div id="notSupported" class="hidden">
+        Sorry, <b>Web Serial</b> is not supported on this device, make sure
+        you're running Chrome 78 or later and have enabled the
+        <code>#enable-experimental-web-platform-features</code> flag in
+        <code>chrome://flags</code>
+      </div>
+
+      <br />
+      <button id="butConnect" type="button">Connect</button>
+      <button id="butIbeacon" type="button" class="hidden">Make iBeacon</button>
+      <button id="butEddystone" type="button" class="hidden">
+        Make Eddystone Beacon
+      </button>
+
+      <pre id="log"></pre>
+    </main>
+  </body>
+</html>
