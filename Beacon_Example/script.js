@@ -8,15 +8,18 @@ let inputStream;
 let outputStream;
 let isIbeaconAdv = false;
 let isEddystonesAdv = false;
+let isScanning = false;
 
 const log = document.getElementById("log");
 const butIbeacon = document.getElementById("butIbeacon");
 const butEddystone = document.getElementById("butEddystone");
 const butConnect = document.getElementById("butConnect");
+const butScan = document.getElementById("butScan");
 
 document.addEventListener("DOMContentLoaded", () => {
   butIbeacon.addEventListener("click", clickIbeacon);
   butEddystone.addEventListener("click", clickEddystone);
+  butScan.addEventListener("click", clickScan);
   butConnect.addEventListener("click", clickConnect);
   const notSupported = document.getElementById("notSupported");
   notSupported.classList.toggle("hidden", "serial" in navigator);
@@ -115,6 +118,7 @@ function clickIbeacon() {
     butEddystone;
     butIbeacon.textContent = "Make iBeacon";
     butEddystone.classList.toggle("hidden", false);
+    butScan.classList.toggle("hidden", false);
     isIbeaconAdv = false;
     return;
   }
@@ -125,6 +129,7 @@ function clickIbeacon() {
 
   butIbeacon.textContent = "Stop Beacon";
   butEddystone.classList.toggle("hidden", true);
+  butScan.classList.toggle("hidden", true);
   isIbeaconAdv = true;
 }
 
@@ -142,6 +147,7 @@ function clickEddystone() {
     writeCmd("AT+ADVSTOP");
     butEddystone.textContent = "Make Eddystone Beacon";
     butIbeacon.classList.toggle("hidden", false);
+    butScan.classList.toggle("hidden", false);
     isEddystonesAdv = false;
     return;
   }
@@ -151,8 +157,40 @@ function clickEddystone() {
   }, 500); // Waiting half a bit to make sure each command will get through separately.
 
   butIbeacon.classList.toggle("hidden", true);
+  butScan.classList.toggle("hidden", true);
   butEddystone.textContent = "Stop Beacon";
   isEddystonesAdv = true;
+}
+
+/**
+ * @name clickScan
+ * Click handler for the Scan button.
+ * Checks if a scan is already running by checking the boolean isScanning.
+ * If isScanning = true: Stops scanning and goes back to peripheral mode, changes the button text and shows the beacon buttons. Finally sets isScanning = false.
+ * If isScanning = false: Goes into Central mode and starts scanning for ble devices. Also changes button text and hides the beacon buttons. Finally sets isScanning = true.
+ */
+function clickScan() {
+  console.log("SCAN BUTTON PRESSED");
+  if (isScanning) {
+    writeCmd("\x03"); // Ctrl+C to stop the scan
+    setTimeout(() => {
+      writeCmd("AT+PERIPHERAL"); // Set the dongle in Peripheral mode needed for advertising.
+    }, 500); // Waiting half a bit to make sure each command will get through separately.
+    isScanning = false;
+    butScan.textContent = "Scan BLE Devices";
+    butIbeacon.classList.toggle("hidden", false);
+    butEddystone.classList.toggle("hidden", false);
+    return;
+  }
+  writeCmd("AT+CENTRAL"); // Set the dongle in Central mode needed for scanning.
+  setTimeout(() => {
+    writeCmd("AT+GAPSCAN");
+  }, 500); // Waiting half a bit to make sure each command will get through separately.
+
+  butScan.textContent = "Stop Scanning...";
+  butIbeacon.classList.toggle("hidden", true);
+  butEddystone.classList.toggle("hidden", true);
+  isScanning = true;
 }
 
 /**
@@ -184,7 +222,10 @@ function writeCmd(cmd) {
   console.log("[SEND]", cmd);
 
   writer.write(cmd);
-  writer.write("\r"); // Important to send a carriage return after a command
+  // Ignores sending carriage return if sending Ctrl+C
+  if (cmd !== "\x03") {
+    writer.write("\r"); // Important to send a carriage return after a command
+  }
   writer.releaseLock();
 }
 
@@ -225,5 +266,6 @@ function toggleUIConnected(connected) {
   }
   butIbeacon.classList.toggle("hidden", !connected);
   butEddystone.classList.toggle("hidden", !connected);
+  butScan.classList.toggle("hidden", !connected);
   butConnect.textContent = lbl;
 }
