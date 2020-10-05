@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   butScan.addEventListener("click", clickScan);
   butConnect.addEventListener("click", clickConnect);
   const notSupported = document.getElementById("notSupported");
-  notSupported.classList.toggle("hidden", "serial" in navigator);
+  notSupported.classList.toggle("disabled", "serial" in navigator);
 });
 
 /**
@@ -125,8 +125,10 @@ function clickIbeacon() {
     writeCmd("AT+ADVSTOP");
     butEddystone;
     butIbeacon.textContent = "Make iBeacon";
-    butEddystone.classList.toggle("hidden", false);
-    butScan.classList.toggle("hidden", false);
+    butEddystone.removeAttribute("disabled");
+    butScan.removeAttribute("disabled");
+    //butEddystone.classList.toggle("disabled", false);
+    //butScan.classList.toggle("disabled", false);
     isIbeaconAdv = false;
     return;
   }
@@ -136,8 +138,11 @@ function clickIbeacon() {
   }, 500); // Waiting half a bit to make sure each command will get through separately.
 
   butIbeacon.textContent = "Stop Beacon";
-  butEddystone.classList.toggle("hidden", true);
-  butScan.classList.toggle("hidden", true);
+  butEddystone.setAttribute("disabled", "true");
+  butScan.setAttribute("disabled", "true");
+
+  //butEddystone.classList.toggle("disabled", true);
+  //butScan.classList.toggle("disabled", true);
   isIbeaconAdv = true;
 }
 
@@ -154,8 +159,10 @@ function clickEddystone() {
   if (isEddystonesAdv) {
     writeCmd("AT+ADVSTOP");
     butEddystone.textContent = "Make Eddystone Beacon";
-    butIbeacon.classList.toggle("hidden", false);
-    butScan.classList.toggle("hidden", false);
+    butIbeacon.removeAttribute("disabled");
+    butScan.removeAttribute("disabled");
+    //butIbeacon.classList.toggle("disabled", false);
+    //butScan.classList.toggle("disabled", false);
     isEddystonesAdv = false;
     return;
   }
@@ -164,8 +171,11 @@ function clickEddystone() {
     writeCmd("AT+ADVSTART=0;200;3000;0;");
   }, 500); // Waiting half a bit to make sure each command will get through separately.
 
-  butIbeacon.classList.toggle("hidden", true);
-  butScan.classList.toggle("hidden", true);
+  //butIbeacon.classList.toggle("disabled", true);
+  butIbeacon.setAttribute("disabled", "true");
+  butScan.setAttribute("disabled", "true");
+
+  //butScan.classList.toggle("disabled", true);
   butEddystone.textContent = "Stop Beacon";
   isEddystonesAdv = true;
 }
@@ -186,8 +196,10 @@ function clickScan() {
     }, 500); // Waiting half a bit to make sure each command will get through separately.
     isScanning = false;
     butScan.textContent = "Scan BLE Devices";
-    butIbeacon.classList.toggle("hidden", false);
-    butEddystone.classList.toggle("hidden", false);
+    butIbeacon.removeAttribute("disabled");
+    butEddystone.removeAttribute("disabled");
+    //butIbeacon.classList.toggle("disabled", false);
+    //butEddystone.classList.toggle("disabled", false);
     return;
   }
   writeCmd("AT+CENTRAL"); // Set the dongle in Central mode needed for scanning.
@@ -196,8 +208,11 @@ function clickScan() {
   }, 500); // Waiting half a bit to make sure each command will get through separately.
 
   butScan.textContent = "Stop Scanning...";
-  butIbeacon.classList.toggle("hidden", true);
-  butEddystone.classList.toggle("hidden", true);
+  //butIbeacon.classList.toggle("disabled", true);
+  //butEddystone.classList.toggle("disabled", true);
+  butIbeacon.setAttribute("disabled", "true");
+  butEddystone.setAttribute("disabled", "true");
+
   isScanning = true;
 }
 
@@ -271,9 +286,12 @@ function toggleUIConnected(connected) {
   let lbl = "Connect";
   if (connected) {
     lbl = "Disconnect";
+    butIbeacon.removeAttribute("disabled");
+    butEddystone.removeAttribute("disabled");
+    butScan.removeAttribute("disabled");
   }
-  butIbeacon.classList.toggle("hidden", !connected);
-  butEddystone.classList.toggle("hidden", !connected);
-  butScan.classList.toggle("hidden", !connected);
+  butIbeacon.classList.toggle("disabled", !connected);
+  butEddystone.classList.toggle("disabled", !connected);
+  butScan.classList.toggle("disabled", !connected);
   butConnect.textContent = lbl;
 }
