@@ -83,7 +83,7 @@ async function disconnect() {
  * @name clickConnect
  * Click handler for the connect/disconnect button.
  * Checks if port != null
- * If true: Checks if any beacons is advertising and stops the advertsing if so. Then runs disconnect() and set toggleUIConnected to false.
+ * If true: Checks if any beacons is advertising or scans are running and stops the advertsing or scan if so. Then runs disconnect() and set toggleUIConnected to false.
  * if false: Runs connect() then set toggleUIConnected to true.
  */
 async function clickConnect() {
@@ -93,6 +93,14 @@ async function clickConnect() {
       writeCmd("AT+ADVSTOP");
       butIbeacon.textContent = "Make iBeacon";
       butEddystone.textContent = "Make Eddystone Beacon";
+      isIbeaconAdv = false;
+      isEddystonesAdv = false;
+    }
+    // If disconnected while scanning the dongle will restart
+    if (isScanning) {
+      writeCmd("\x03");
+      butScan.textContent = "Scan BLE Devices";
+      isScanning = false;
     }
     await disconnect();
     toggleUIConnected(false);
